@@ -37,6 +37,8 @@ router.beforeEach(async (to, from) => {
     }
   }
 
+
+
   if (meta.gaurded === false && userStore.isAuthenticated) {
     return { name: 'dashboard' }
   }
