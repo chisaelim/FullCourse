@@ -7,33 +7,40 @@
         </div>
         <div class="card-body">
           <p class="login-box-msg">Sign up for a new membership</p>
-          <form>
+          <form @submit.prevent="signUp">
             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Name" />
+              <input v-model="user.name" type="text" class="form-control" :class="{ 'is-invalid': !!userError.name }"
+                placeholder="Name" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
                 </div>
               </div>
+              <div class="invalid-feedback">{{ userError.name }}</div>
             </div>
             <div class="input-group mb-3">
-              <input type="email" class="form-control" placeholder="Email" />
+              <input v-model="user.email" type="email" class="form-control" :class="{ 'is-invalid': !!userError.email }"
+                placeholder="Email" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
                 </div>
               </div>
+              <div class="invalid-feedback">{{ userError.email }}</div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control" placeholder="Password" autocomplete />
+              <input v-model="user.password" type="password" class="form-control"
+                :class="{ 'is-invalid': !!userError.password }" placeholder="Password" autocomplete />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
                 </div>
               </div>
+              <div class="invalid-feedback">{{ userError.password }}</div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control" placeholder="Confirm Password" autocomplete />
+              <input v-model="user.password_confirmation" type="password" class="form-control"
+                placeholder="Confirm Password" autocomplete />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -58,4 +65,65 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { apiSignUp } from '@/functions/api/auth'
+import { LoadingModal, MessageModal, CloseModal } from '@/functions/swal';
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const user = reactive({
+  name: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
+});
+
+const userError = reactive({
+  name: "",
+  email: "",
+  password: "",
+});
+
+const defaultUser = JSON.parse(JSON.stringify(user));
+const defaultUserError = JSON.parse(JSON.stringify(userError));
+
+function resetAllState() {
+  Object.assign(user, defaultUser);
+  Object.assign(userError, defaultUserError);
+}
+
+async function signUp() {
+  try {
+    LoadingModal('Signing Up')
+    const response = await apiSignUp(user);
+    resetAllState();
+    return MessageModal({
+      icon: "success",
+      title: "Success",
+      text: response.data.message,
+    }, () => router.push({ name: 'auth.signin' }));
+  } catch (error) {
+    const { response } = error;
+    if (!response) {
+      return MessageModal({
+        icon: "error",
+        title: "Error",
+        text: error.message,
+      });
+    }
+    const { status, data } = response;
+    if (status === 422) {
+      Object.keys(userError).forEach((key) => {
+        userError[key] = data.errors[key] ? data.errors[key][0] : "";
+      });
+      return CloseModal();
+    }
+    return MessageModal({
+      icon: "error",
+      title: "Error",
+      text: data.message,
+    });
+  }
+}
+</script>
