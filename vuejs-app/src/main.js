@@ -22,7 +22,7 @@ app.mount('#app');
 const userStore = useUserStore()
 router.beforeEach(async (to, from) => {
   const meta = to.meta;
-  if (meta.gaurded === undefined) {
+  if (meta.guarded === undefined) {
     return;
   }
 
@@ -39,10 +39,10 @@ router.beforeEach(async (to, from) => {
 
 
 
-  if (meta.gaurded === false && userStore.isAuthenticated) {
+  if (meta.guarded === false && userStore.isAuthenticated) {
     return { name: 'dashboard' }
   }
-  if (meta.gaurded === true && !userStore.isAuthenticated) {
+  if (meta.guarded === true && !userStore.isAuthenticated) {
     return { name: 'auth.signin' }
   }
 });

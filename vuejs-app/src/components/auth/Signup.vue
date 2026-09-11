@@ -3,43 +3,49 @@
     <div class="login-box">
       <div class="card card-outline card-primary">
         <div class="card-header text-center">
-          <RouterLink to="/" class="h1"><b>Admin</b>LTE</RouterLink>
+          <router-link to="/" class="h1"><b>Admin</b>LTE</router-link>
         </div>
         <div class="card-body">
           <p class="login-box-msg">Sign up for a new membership</p>
           <form @submit.prevent="signUp">
             <div class="input-group mb-3">
-              <input v-model="user.name" type="text" class="form-control" :class="{ 'is-invalid': !!userError.name }"
-                placeholder="Name" />
+              <input type="text" v-model="user.name" class="form-control" placeholder="Name"
+                :class="{ 'is-invalid': !!userError.name }" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
                 </div>
               </div>
-              <div class="invalid-feedback">{{ userError.name }}</div>
+              <div class="invalid-feedback">
+                {{ userError.name }}
+              </div>
             </div>
             <div class="input-group mb-3">
-              <input v-model="user.email" type="email" class="form-control" :class="{ 'is-invalid': !!userError.email }"
-                placeholder="Email" />
+              <input type="email" v-model="user.email" class="form-control" placeholder="Email"
+                :class="{ 'is-invalid': !!userError.email }" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
                 </div>
               </div>
-              <div class="invalid-feedback">{{ userError.email }}</div>
+              <div class="invalid-feedback">
+                {{ userError.email }}
+              </div>
             </div>
             <div class="input-group mb-3">
-              <input v-model="user.password" type="password" class="form-control"
-                :class="{ 'is-invalid': !!userError.password }" placeholder="Password" autocomplete />
+              <input type="password" v-model="user.password" class="form-control" placeholder="Password" autocomplete
+                :class="{ 'is-invalid': !!userError.password }" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
                 </div>
               </div>
-              <div class="invalid-feedback">{{ userError.password }}</div>
+              <div class="invalid-feedback">
+                {{ userError.password }}
+              </div>
             </div>
             <div class="input-group mb-3">
-              <input v-model="user.password_confirmation" type="password" class="form-control"
+              <input type="password" v-model="user.password_confirmation" class="form-control"
                 placeholder="Confirm Password" autocomplete />
               <div class="input-group-append">
                 <div class="input-group-text">
@@ -57,8 +63,20 @@
             </div>
           </form>
           <p class="mb-1">
-            <RouterLink :to="{ name: 'auth.signin' }" class="text-center">I already have an account</RouterLink>
+            <router-link :to="{ name: 'auth.signin' }" class="text-center">I already have an account</router-link>
           </p>
+          <hr />
+          <div v-if="signedUpEmail" class="mt-3">
+            <p>
+              Signed up with <strong>{{ signedUpEmail }}</strong>
+            </p>
+            <p class="mb-3">
+              Didn't receive the verification email?
+            </p>
+            <button @click="sendVerificationEmail" class="btn btn-secondary btn-block">
+              Resend Verification Email
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -66,10 +84,10 @@
 </template>
 
 <script setup>
-import { apiSignUp } from '@/functions/api/auth'
-import { LoadingModal, MessageModal, CloseModal } from '@/functions/swal';
-import { reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
+import { reactive, ref } from "vue";
+import { apiSignUp, apiSendVerificationEmail } from "@/functions/api/auth";
+import { LoadingModal, MessageModal, CloseModal } from "@/functions/swal";
 const router = useRouter();
 
 const user = reactive({
@@ -94,15 +112,17 @@ function resetAllState() {
 }
 
 async function signUp() {
+  resetSignedUpEmail();
   try {
-    LoadingModal('Signing Up')
-    const response = await apiSignUp(user);
+    LoadingModal("Signing Up...");
+    await apiSignUp(user);
+    signedUpEmail.value = user.email;
     resetAllState();
     return MessageModal({
       icon: "success",
       title: "Success",
-      text: response.data.message,
-    }, () => router.push({ name: 'auth.signin' }));
+      text: "Your account has been created successfully.",
+    });
   } catch (error) {
     const { response } = error;
     if (!response) {
@@ -125,5 +145,37 @@ async function signUp() {
       text: data.message,
     });
   }
+}
+
+const signedUpEmail = ref("");
+async function sendVerificationEmail() {
+  try {
+    LoadingModal("Requesting verification email...");
+    const response = await apiSendVerificationEmail(signedUpEmail.value);
+    const { data } = response;
+    return MessageModal({
+      icon: "success",
+      title: "Success",
+      text: data.message,
+    });
+  } catch (error) {
+    const { response } = error;
+    if (!response) {
+      return MessageModal({
+        icon: "error",
+        title: "Error",
+        text: error.message,
+      });
+    }
+    const { data } = response;
+    return MessageModal({
+      icon: "error",
+      title: "Error",
+      text: data.message,
+    });
+  }
+}
+function resetSignedUpEmail() {
+  signedUpEmail.value = "";
 }
 </script>
