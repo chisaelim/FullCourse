@@ -45,7 +45,7 @@ class ResetPasswordNotification extends Notification
         return (new MailMessage)
             ->subject('Reset Your Password')
             ->line('Click the button below to set your new password.')
-            ->action('Set New Password', $this->callback_url . '?forwarded-url=' . $resetUrl)
+            ->action('Set New Password', $this->callback_url . '?forwarded-url=' . urlencode($resetUrl))
             ->line('If you did not request a password reset, no further action is required.');
     }
 }
