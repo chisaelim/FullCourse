@@ -1,4 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
+import Navbar from '@/components/includes/Navbar.vue';
+import LeftSidebar from '@/components/includes/LeftSidebar.vue';
+import RightSidebar from '@/components/includes/RightSidebar.vue';
+import Footer from '@/components/includes/Footer.vue';
+
 import Signin from '@/components/auth/Signin.vue';
 import Signup from '@/components/auth/Signup.vue';
 import Signout from '@/components/auth/Signout.vue';
@@ -7,6 +13,8 @@ import ResetPassword from '@/components/auth/ResetPassword.vue';
 import SetNewPassword from '@/components/auth/SetNewPassword.vue';
 import GoogleOAuth from '@/components/auth/GoogleOAuth.vue';
 import Dashboard from '@/components/pages/Dashboard.vue';
+import Profile from '@/components/auth/Profile.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,7 +43,27 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard,
+      components: {
+        default: Dashboard,
+        navbar: Navbar,
+        left_sidebar: LeftSidebar,
+        right_sidebar: RightSidebar,
+        footer: Footer,
+      },
+      meta: {
+        guarded: true
+      },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      components: {
+        default: Profile,
+        navbar: Navbar,
+        left_sidebar: LeftSidebar,
+        right_sidebar: RightSidebar,
+        footer: Footer,
+      },
       meta: {
         guarded: true
       },
