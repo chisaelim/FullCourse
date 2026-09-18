@@ -3,7 +3,7 @@
     <div class="login-box">
       <div class="card card-outline card-primary">
         <div class="card-header text-center">
-          <RouterLink to="/" class="h1"><b>Admin</b>LTE</RouterLink>
+          <router-link to="/" class="h1"><b>Admin</b>LTE</router-link>
         </div>
         <div class="card-body">
           <p class="login-box-msg">Sign in to start your session</p>
@@ -41,11 +41,18 @@
               </div>
             </div>
           </form>
-          <p class="mb-0">
-            <RouterLink :to="{ name: 'auth.signup' }" class="text-center">Register a new membership</RouterLink>
+          <div class="social-auth-links text-center mt-3 mb-3">
+            <p>- OR -</p>
+            <button @click="googleSignIn()" class="btn btn-block btn-danger">
+              <i class="fab fa-google mr-2"></i> Sign in with
+              Google
+            </button>
+          </div>
+          <p class="mb-1">
+            <router-link :to="{ name: 'auth.signup' }" class="text-center">Register a new membership</router-link>
           </p>
           <p class="mb-0">
-            <RouterLink :to="{ name: 'auth.reset-password' }" class="text-center">Forgot your password?</RouterLink>
+            <router-link :to="{ name: 'auth.reset-password' }" class="text-center">Forgot your password?</router-link>
           </p>
         </div>
       </div>
@@ -59,6 +66,8 @@ import { reactive } from "vue";
 import { apiSignIn } from "@/functions/api/auth";
 import { LoadingModal, MessageModal, CloseModal } from "@/functions/swal";
 import { useUserStore } from "@/stores/user";
+import { apiGoogleOAuthRedirect } from "@/functions/api/google-oauth";
+
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -85,11 +94,8 @@ async function signIn() {
     LoadingModal("Signing In...");
     const response = await apiSignIn(user);
     const { data } = response;
-
-    // userStore usage
     userStore.setState(data.user);
     userStore.setSanctumToken(data.token);
-
     resetAllState();
     router.replace({ name: "dashboard" });
     return CloseModal();
@@ -116,4 +122,18 @@ async function signIn() {
     });
   }
 }
+
+const googleSignIn = async () => {
+  try {
+    LoadingModal();
+    const response = await apiGoogleOAuthRedirect();
+    window.location.href = response.data.redirect_url;
+  } catch (error) {
+    return MessageModal({
+      icon: "error",
+      title: "Error",
+      text: error.response?.data?.message || error.message,
+    });
+  }
+};
 </script>
