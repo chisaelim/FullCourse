@@ -9,10 +9,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Storage;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -42,5 +44,26 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token, $callback_url = null)
     {
         $this->notify(new ResetPasswordNotification($token, $callback_url));
+    }
+
+    protected function passwordNull(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => empty($this->password),
+        );
+    }
+
+    protected function profileImage(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? Storage::disk('public')->url($value) : null,
+        );
+    }
+
+    protected function profileThumbnail(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? Storage::disk('public')->url($value) : null,
+        );
     }
 }
