@@ -20,12 +20,8 @@ export async function apiSignOut(token) {
     },
   });
 }
-export async function apiVerify(token) {
-  return await axios.get(APP_API_URL + "/verify", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function apiVerify() {
+  return await axios.get(APP_API_URL + "/verify");
 }
 export async function apiSendVerificationEmail(email) {
   return await axios.post(APP_API_URL + "/send/verification-email", {
@@ -38,4 +34,33 @@ export async function apiSendResetPasswordEmail(email) {
     email,
     callback_url: APP_RESET_PASSWORD_URL,
   });
+}
+export async function apiCreatePassword(
+  new_password,
+  new_password_confirmation,
+) {
+  return await axios.put(APP_API_URL + "/create/password", {
+    new_password,
+    new_password_confirmation,
+  });
+}
+export async function apiChangePassword(
+  current_password,
+  new_password,
+  new_password_confirmation,
+) {
+  return await axios.put(APP_API_URL + "/change/password", {
+    current_password,
+    new_password,
+    new_password_confirmation,
+  });
+}
+
+export async function apiUpdateProfileImage(image) {
+  const formData = new FormData();
+  formData.append("profile_image", image);
+  return await axios.put(APP_API_URL + "/update/profile-image", formData);
+}
+export async function apiDeleteProfileImage() {
+  return await axios.delete(APP_API_URL + "/delete/profile-image");
 }
