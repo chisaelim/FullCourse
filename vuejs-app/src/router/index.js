@@ -14,6 +14,7 @@ import SetNewPassword from '@/components/auth/SetNewPassword.vue';
 import GoogleOAuth from '@/components/auth/GoogleOAuth.vue';
 import Dashboard from '@/components/pages/Dashboard.vue';
 import Profile from '@/components/auth/Profile.vue';
+import User from '@/components/pages/User.vue';
 
 
 const router = createRouter({
@@ -93,6 +94,20 @@ const router = createRouter({
       name: "auth.google.oauth.callback",
       component: GoogleOAuth,
       meta: { guarded: false },
+    },
+    {
+      path: '/users',
+      name: 'users',
+      components: {
+        default: User,
+        navbar: Navbar,
+        left_sidebar: LeftSidebar,
+        right_sidebar: RightSidebar,
+        footer: Footer,
+      },
+      meta: {
+        guarded: true
+      },
     },
     {
       path: "/:pathMatch(.*)*",

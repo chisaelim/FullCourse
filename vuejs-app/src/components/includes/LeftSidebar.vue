@@ -55,6 +55,14 @@
               <p>Dashboard</p>
             </router-link>
           </li>
+
+          <li class="nav-item">
+            <router-link v-if="userStore.level === 'ADMIN'" :to="{ name: 'users' }" active-class="active"
+              class="nav-link">
+              <i class="nav-icon fas fa-users"></i>
+              <p>Users</p>
+            </router-link>
+          </li>
         </ul>
       </nav>
     </div>
