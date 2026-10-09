@@ -22,7 +22,7 @@ Route::prefix('google')->group(function () {
     Route::post('/oauth/exchange/token', [GoogleOAuthController::class, 'googleOAuthExchangeToken'])->middleware('auth:sanctum');
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'enabled'])->group(function () {
     Route::post('/signout', [AuthController::class, 'signout']);
     Route::get('/verify', [AuthController::class, 'verify']);
 
@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/create', [UserController::class, 'createUser']);
             Route::put('/update/{id}', [UserController::class, 'updateUser']);
             Route::delete('/delete/{id}', [UserController::class, 'deleteUser']);
+            Route::patch('/toggle-status/{id}', [UserController::class, 'toggleUserStatus']);
         });
     });
 });

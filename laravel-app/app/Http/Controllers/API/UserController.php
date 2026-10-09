@@ -7,6 +7,7 @@ use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Requests\User\GetUsersRequest;
 use App\Http\Requests\User\ReadUserRequest;
+use App\Http\Requests\User\ToggleUserStatusRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use DB;
@@ -124,6 +125,30 @@ class UserController extends Controller
 
         return response([
             'message' => 'User deleted.'
+        ], 200);
+    }
+
+    public function toggleUserStatus(ToggleUserStatusRequest $request)
+    {
+        $user = User::where('id', $request->route('id'))
+            ->isUser()
+            ->firstOrFail();
+
+        try {
+            DB::beginTransaction();
+            $user->status = $user->status === 'ENABLED' ? 'DISABLED' : 'ENABLED';
+            $user->save();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response([
+                'message' => 'Failed to toggle user status'
+            ], 500);
+        }
+
+        return response([
+            'message' => 'User status toggled.',
+            'user' => new UserResource($user)
         ], 200);
     }
 }

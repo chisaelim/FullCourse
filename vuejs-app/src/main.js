@@ -43,7 +43,7 @@ router.beforeEach(async (to, from) => {
     const { data } = response;
     userStore.setState(data.user);
   } catch (error) {
-    if (error.response && error.response.status === 401) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       userStore.reset();
     }
   }

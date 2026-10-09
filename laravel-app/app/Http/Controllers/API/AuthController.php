@@ -51,6 +51,12 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($user->status === 'DISABLED') {
+            throw ValidationException::withMessages([
+                'password' => 'User account is disabled.',
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response([

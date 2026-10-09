@@ -21,3 +21,7 @@ export function apiUpdateUser(id, data) {
 export function apiDeleteUser(id) {
   return axios.delete(APP_API_URL + `/manage/users/delete/${id}`);
 }
+
+export function apiToggleUserStatus(id) {
+  return axios.patch(APP_API_URL + `/manage/users/toggle-status/${id}`);
+}

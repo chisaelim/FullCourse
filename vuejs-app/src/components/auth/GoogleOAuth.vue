@@ -15,12 +15,12 @@ onMounted(async () => {
   try {
     LoadingModal("Processing Google authentication...");
     const error = route.query.error;
-    if (error === "google_oauth_failed") {
+    if (error === "google_oauth_failed" || error === "account_disabled") {
       return MessageModal(
         {
           icon: "error",
           title: "Error",
-          text: "Google authentication failed. Please try again.",
+          text: error === "account_disabled" ? "Your account has been disabled." : "Google authentication failed. Please try again.",
         },
         () => {
           return router.replace({ name: "auth.signin" });
